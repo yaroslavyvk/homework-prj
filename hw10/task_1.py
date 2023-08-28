@@ -1,16 +1,11 @@
 import random
 
-
-def generator_random_number():
-    return random.randint(1, 100)
-
-
 letters = [chr(ord('A') + i) for i in range(26)]
 file_data = {}
 for letter in letters:
     file_name = f'{letter}.txt'
     with open(file_name, 'w') as file:
-        random_num = generator_random_number()
+        random_num = random.randint(1,100)
         file.write(f'{random_num}')
         file_data[file_name] = random_num
 
