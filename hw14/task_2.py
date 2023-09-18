@@ -15,10 +15,10 @@ class FastFood(Restaurant):
             return "Dish not available"
         elif self.menu[dish_name]['quantity'] < quantity:
             return "Requested quantity not available"
-        else:
-            total_price = self.menu[dish_name]['price'] * quantity
-            self.menu[dish_name]['quantity'] -= quantity
-            return total_price
+
+        total_price = self.menu[dish_name]['price'] * quantity
+        self.menu[dish_name]['quantity'] -= quantity
+        return total_price
 
 
 menu = {
