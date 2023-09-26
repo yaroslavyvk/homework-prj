@@ -9,7 +9,7 @@ CREATE TABLE Users (
 CREATE TABLE Rooms (
     room_id SERIAL PRIMARY KEY,
     host_id INT ,
-    price FLOAT NOT NULL,
+    price DECIMAL NOT NULL,
     max_residents INT NOT NULL,
     has_AC BOOLEAN,
     has_refrigerator BOOLEAN,
@@ -38,7 +38,7 @@ CREATE TABLE Reviews (
 CREATE TABLE Payments (
     payment_id SERIAL PRIMARY KEY,
     reservation_id INT,
-    amount FLOAT NOT NULL,
+    amount DECIMAL NOT NULL,
     FOREIGN KEY (reservation_id) REFERENCES Reservations(reservation_id)
 );
 
@@ -87,8 +87,7 @@ FROM Users
 JOIN Rooms ON Users.user_id = Rooms.host_id
 JOIN Reservations ON Rooms.room_id = Reservations.room_id
 JOIN Payments ON Reservations.reservation_id = Payments.reservation_id
-WHERE Users.user_type = 'Host'
-    AND DATE_TRUNC('month', current_date) - INTERVAL '1 month' <= Reservations.start_date
+WHERE Users.user_type = 'Host' AND DATE_TRUNC('month', current_date) - INTERVAL '1 month' <= Reservations.start_date
 GROUP BY Users.user_id
 ORDER BY SUM(Payments.amount) DESC
 LIMIT 1;
