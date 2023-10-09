@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import sessionmaker, relationship, declarative_base
-
+from sqlalchemy import UniqueConstraint
 
 
 Base = declarative_base()
@@ -21,10 +21,10 @@ class Subject(Base):
 
 class StudentSubject(Base):
     __tablename__ = 'student_subjects'
-
-    id = Column(Integer, primary_key=True) 
-    student_id = Column(Integer, ForeignKey('students.id'))
-    subject_id = Column(Integer, ForeignKey('subjects.id'))
+    
+    student_id = Column(Integer, ForeignKey('students.id'), primary_key=True)
+    subject_id = Column(Integer, ForeignKey('subjects.id'), primary_key=True)
+    UniqueConstraint(student_id, subject_id, name='uix_student_subject')
 
     student = relationship('Student', back_populates='subjects')
     subject = relationship('Subject', back_populates='students')
