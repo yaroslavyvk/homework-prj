@@ -1,3 +1,8 @@
+import unittest
+from unittest.mock import patch
+from io import StringIO
+
+
 class Account:
     def __init__(self, balance, account_number):
         self._balance = balance
@@ -87,11 +92,9 @@ class Bank:
                 self._accounts.remove(account)
                 break
 
-
     def pay_dividend(self, dividend_amount):
         for account in self._accounts:
             account.deposit(dividend_amount)
-
 
     def update(self):
         for account in self._accounts:
@@ -101,13 +104,42 @@ class Bank:
                 print(f"Letter sent to account {account.get_account_number()} due to overdraft")
 
 
-bank = Bank()
+class TestBank(unittest.TestCase):
+    def setUp(self):
+        self.bank = Bank()
 
-bank.open_account("savings", "001", interest=0.05)
-bank.open_account("current", "002", overdraft_limit=1000)
-current_account = bank.get_accounts()[1]
-current_account.withdraw(950)
-bank.update()
+    def test_open_account_savings(self):
+        self.bank.open_account("savings", "001", interest=0.05)
+        accounts = self.bank.get_accounts()
+        self.assertEqual(len(accounts), 1)
+        self.assertEqual(accounts[0].get_balance(), 0.0)
+        self.assertEqual(accounts[0].get_account_number(), "001")
+        self.assertTrue(isinstance(accounts[0], SavingsAccount))
 
-for account in bank._accounts:
-    print(account)
+    def test_open_account_current(self):
+        self.bank.open_account("current", "002", overdraft_limit=1000)
+        accounts = self.bank.get_accounts()
+        self.assertEqual(len(accounts), 1)
+        self.assertEqual(accounts[0].get_balance(), 0.0)
+        self.assertEqual(accounts[0].get_account_number(), "002")
+        self.assertTrue(isinstance(accounts[0], CurrentAccount))
+
+    def test_open_account_invalid(self):
+        with self.assertRaises(ValueError) as context:
+            self.bank.open_account("invalid", "003")
+        self.assertEqual(str(context.exception), "Invalid account type: invalid")
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_update_interest_and_overdraft(self, mock_stdout):
+        self.bank.open_account("savings", "001", interest=0.05)
+        self.bank.open_account("current", "002", overdraft_limit=1000)
+        current_account = self.bank.get_accounts()[1]
+        current_account.withdraw(950)
+        self.bank.update()
+
+        self.assertEqual(self.bank.get_accounts()[0].get_balance(), 0.0)
+        self.assertEqual(self.bank.get_accounts()[1].get_balance(), -950)
+        self.assertIn("Letter sent to account 002 due to overdraft", mock_stdout.getvalue())
+
+
+unittest.main()
