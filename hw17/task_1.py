@@ -22,8 +22,9 @@ class Subject(Base):
 class StudentSubject(Base):
     __tablename__ = 'student_subjects'
     
-    student_id = Column(Integer, ForeignKey('students.id'), primary_key=True)
-    subject_id = Column(Integer, ForeignKey('subjects.id'), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    student_id = Column(Integer, ForeignKey('students.id'))
+    subject_id = Column(Integer, ForeignKey('subjects.id'))
     UniqueConstraint(student_id, subject_id, name='uix_student_subject')
 
     student = relationship('Student', back_populates='subjects')
